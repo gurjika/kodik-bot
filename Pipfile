@@ -16,6 +16,8 @@ sqlalchemy = "*"
 aiohttp = "*"
 aiomysql = "*"
 cryptography = "*"
+alembic = "*"
+colorama = "*"
 
 [dev-packages]
 

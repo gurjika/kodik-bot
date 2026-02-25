@@ -1,26 +1,8 @@
-"""
-SQLAlchemy async database layer.
-
-Models:
-  Message     — every user message + AI response
-  Escalation  — ask_human escalations & admin replies
-
-Usage:
-  from storage.database import init_db, get_session, Message, Escalation
-
-  # At startup:
-  await init_db()
-
-  # In request handlers:
-  async with get_session() as session:
-      session.add(Message(...))
-      await session.commit()
-"""
-
 import logging
+import secrets
 from datetime import datetime, timezone
 
-from sqlalchemy import String, BigInteger, Text, DateTime, Enum as SAEnum
+from sqlalchemy import String, BigInteger, Text, DateTime, Enum as SAEnum, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -40,6 +22,19 @@ _session_factory: async_sessionmaker[AsyncSession] | None = None
 class Base(DeclarativeBase):
     pass
 
+
+
+class UserSession(Base):
+    """Stores the active thread_id per user. Reset on /restart."""
+
+    __tablename__ = "user_sessions"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    thread_id: Mapped[str] = mapped_column(String(128))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+    )
 
 
 class Message(Base):
@@ -103,3 +98,32 @@ def get_session() -> AsyncSession:
     if _session_factory is None:
         raise RuntimeError("Database not initialized — call init_db() first")
     return _session_factory()
+
+
+def _new_thread_id(user_id: int) -> str:
+    return f"user_{user_id}_{secrets.token_hex(6)}"
+
+
+async def get_or_create_thread_id(user_id: int) -> str:
+    """Return the user's active thread_id, creating one if it doesn't exist."""
+    async with get_session() as session:
+        row = await session.get(UserSession, user_id)
+        if row is None:
+            row = UserSession(user_id=user_id, thread_id=_new_thread_id(user_id))
+            session.add(row)
+            await session.commit()
+        return row.thread_id
+
+
+async def reset_thread_id(user_id: int) -> str:
+    """Generate a fresh thread_id for the user (call on /restart)."""
+    async with get_session() as session:
+        row = await session.get(UserSession, user_id)
+        new_tid = _new_thread_id(user_id)
+        if row is None:
+            session.add(UserSession(user_id=user_id, thread_id=new_tid))
+        else:
+            row.thread_id = new_tid
+            row.created_at = datetime.now(timezone.utc)
+        await session.commit()
+        return new_tid
