@@ -13,14 +13,16 @@ To scale beyond one event loop, run multiple instances of this process
 import asyncio
 import logging
 import sys
-
-import telebot.async_telebot as async_telebot
-
 from config import get_settings
 from agent.graph import create_graph
 from bot.handlers import register_user_handlers
 from bot.admin import register_admin_handlers
-from queue.worker import WorkerPool
+from bot.instance import bot
+from workers.worker import WorkerPool
+from storage.database import init_db
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
 
 
 def _configure_logging(level: str) -> None:
@@ -39,24 +41,19 @@ async def main() -> None:
     logger.info("Starting kodik-bot")
     logger.info("Workers: %d | Model: %s", settings.NUM_WORKERS, settings.OPENAI_MODEL)
 
-    # Create the LangGraph agent (connects to Redis for checkpointing)
+    await init_db()
+    logger.info("Database initialized")
+
     graph = await create_graph()
     logger.info("LangGraph agent ready")
 
-    # Create the Telegram bot instance
-    bot = async_telebot.AsyncTeleBot(settings.TELEGRAM_BOT_TOKEN)
-
-    # Register message handlers
     register_user_handlers(bot)
     register_admin_handlers(bot)
 
-    # Create and start the worker pool
-    pool = WorkerPool(graph=graph, bot=bot, num_workers=settings.NUM_WORKERS)
+    pool = WorkerPool(graph=graph, num_workers=settings.NUM_WORKERS)
     pool.start()
 
     try:
-        # Bot polling runs concurrently with all workers in the same event loop.
-        # non_stop=True ensures polling restarts on Telegram API errors.
         await bot.polling(non_stop=True, timeout=30)
     finally:
         await pool.stop()

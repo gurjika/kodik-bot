@@ -1,33 +1,22 @@
-"""
-Admin group reply handler.
-
-Flow:
-  1. Agent calls ask_human(question) → sends message to admin group,
-     stores admin_msg_id → {thread_id, user_chat_id} in Redis,
-     graph suspends via interrupt().
-  2. Admin replies to that specific message in the group.
-  3. This handler detects the reply, retrieves the stored context,
-     enqueues a "resume" job, and deletes the Redis key.
-  4. A worker picks up the resume job and calls graph.astream(Command(resume=reply)).
-
-The bot (in bot/main.py) is responsible for sending the escalation message
-to the admin group and calling set_admin_pending() after it receives the
-message_id from Telegram.
-"""
-
 import logging
+from datetime import datetime, timezone
+
 import telebot.async_telebot as async_telebot
+from sqlalchemy import select
+
 from config import get_settings
-from storage.redis_store import get_and_delete_admin_pending, enqueue_resume
+from storage.redis_store import get_and_delete_admin_pending
+from storage.database import get_session, Escalation
+from bot.instance import bot
 
 logger = logging.getLogger(__name__)
 
 
-def register_admin_handlers(bot: async_telebot.AsyncTeleBot) -> None:
+def register_admin_handlers(bot_instance: async_telebot.AsyncTeleBot) -> None:
     settings = get_settings()
     admin_gid = settings.ADMIN_GROUP_ID
 
-    @bot.message_handler(
+    @bot_instance.message_handler(
         func=lambda m: (
             m.chat.id == admin_gid
             and m.reply_to_message is not None
@@ -42,21 +31,29 @@ def register_admin_handlers(bot: async_telebot.AsyncTeleBot) -> None:
 
         pending = await get_and_delete_admin_pending(replied_to_id)
         if pending is None:
-            # Not a tracked escalation — could be a regular group message
             logger.debug("No pending escalation for msg_id=%s", replied_to_id)
             return
 
-        thread_id = pending["thread_id"]
         user_chat_id = int(pending["user_chat_id"])
 
-        await enqueue_resume(
-            thread_id=thread_id,
-            user_chat_id=user_chat_id,
-            human_reply=message.text.strip(),
+        await bot.send_message(
+            user_chat_id, 
+            f"*Support team reply:*\n{message.text.strip()}",
+            parse_mode="Markdown",
         )
-        logger.info(
-            "Queued resume for thread=%s user_chat=%s", thread_id, user_chat_id
-        )
+        logger.info("Admin reply forwarded to user_chat=%s", user_chat_id)
 
-        # Optional: confirm to the admin that the reply will be forwarded
-        await bot.reply_to(message, "✓ Reply forwarded to user.")
+        async with get_session() as session:
+            result = await session.execute(
+                select(Escalation).where(
+                    Escalation.admin_msg_id == replied_to_id
+                )
+            )
+            esc = result.scalar_one_or_none()
+            if esc is not None:
+                esc.admin_reply = message.text.strip()
+                esc.status = "resolved"
+                esc.resolved_at = datetime.now(timezone.utc)
+                await session.commit()
+
+        await bot_instance.reply_to(message, "✓ Reply sent to user.")

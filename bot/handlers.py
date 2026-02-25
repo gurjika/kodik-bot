@@ -1,11 +1,3 @@
-"""
-User-facing message handler.
-
-Every message from a non-admin chat is pushed onto the Redis job queue
-immediately. The handler returns in microseconds; processing happens
-in the async worker pool (queue/worker.py).
-"""
-
 import logging
 import telebot.async_telebot as async_telebot
 from config import get_settings
@@ -29,7 +21,6 @@ def register_user_handlers(bot: async_telebot.AsyncTeleBot) -> None:
 
         logger.info("User %s sent: %r", user_id, text[:80])
 
-        # Acknowledge receipt so the user isn't left staring at nothing
         await bot.send_chat_action(chat_id, "typing")
 
         await enqueue_new_message(

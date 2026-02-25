@@ -1,18 +1,3 @@
-"""
-Knowledge base retriever.
-
-Loads knowledge.json once at module import into memory.
-All queries are pure in-memory scans — zero I/O per lookup.
-
-Schema of each entry:
-  {
-    "section": str,   # short title / heading for this doc section
-    "text":    str    # full documentation text for this section
-  }
-
-To add or edit content, modify knowledge.json and restart the bot.
-"""
-
 import json
 import logging
 from pathlib import Path

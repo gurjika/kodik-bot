@@ -12,6 +12,10 @@ langgraph-checkpoint-redis = "*"
 pydantic-settings = "*"
 python-dotenv = "*"
 redis = {extras = ["asyncio"], version = "*"}
+sqlalchemy = "*"
+aiohttp = "*"
+aiomysql = "*"
+cryptography = "*"
 
 [dev-packages]
 

@@ -1,32 +1,3 @@
-"""
-Redis helper utilities.
-
-Key namespaces
---------------
-job_queue               Redis List  — FIFO queue of JSON-encoded jobs for workers
-admin_pending:<msg_id>  Redis Hash  — maps admin group message_id → thread data
-user_state:<user_id>    Redis String — optional per-user rate limit counter
-
-Job schemas
------------
-New message job:
-  {
-    "type": "new",
-    "user_id": int,
-    "chat_id": int,
-    "thread_id": str,
-    "text": str
-  }
-
-Resume job (admin replied):
-  {
-    "type": "resume",
-    "thread_id": str,
-    "user_chat_id": int,
-    "human_reply": str
-  }
-"""
-
 import json
 import logging
 from typing import Any
@@ -38,15 +9,13 @@ logger = logging.getLogger(__name__)
 
 QUEUE_KEY = "job_queue"
 ADMIN_PENDING_PREFIX = "admin_pending:"
-ADMIN_PENDING_TTL = 60 * 60 * 48  # 48 hours — drop stale escalations
+ADMIN_PENDING_TTL = 60 * 60 * 72  # 72 hours — drop stale escalations
 
 
 def _client() -> aioredis.Redis:
     """Return a module-level shared async Redis client (connection pooled)."""
-    return aioredis.from_url(get_settings().REDIS_URL, decode_responses=True)
+    return aioredis.from_url(get_settings().QUEUE_REDIS_URL, decode_responses=True)
 
-
-# Single shared client — created lazily, reused across all coroutines
 _redis: aioredis.Redis | None = None
 
 
@@ -55,11 +24,6 @@ def get_redis() -> aioredis.Redis:
     if _redis is None:
         _redis = _client()
     return _redis
-
-
-# ---------------------------------------------------------------------------
-# Job queue helpers
-# ---------------------------------------------------------------------------
 
 async def enqueue_new_message(
     user_id: int, chat_id: int, thread_id: str, text: str
@@ -98,11 +62,6 @@ async def dequeue_job(timeout: int = 5) -> dict[str, Any] | None:
         return None
     _, raw = result
     return json.loads(raw)
-
-
-# ---------------------------------------------------------------------------
-# Admin pending map helpers
-# ---------------------------------------------------------------------------
 
 async def set_admin_pending(
     admin_msg_id: int, thread_id: str, user_chat_id: int, escalation_question: str

@@ -1,19 +1,4 @@
-"""
-LangGraph agent graph.
-
-Topology:
-    START → agent → (if tool_calls) tools → agent → ... → END
-
-The `ask_human` tool calls langgraph.interrupt() internally, which suspends
-the entire graph at the tools node. State is persisted to Redis via
-AsyncRedisSaver. When the admin replies, queue/worker.py calls
-graph.astream(Command(resume=reply), config) to continue from the exact
-suspension point.
-"""
-
 import logging
-from functools import lru_cache
-
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
