@@ -1,0 +1,78 @@
+[
+  {
+    "section": "What is Kodik",
+    "text": "Kodik is an AI-powered IDE designed for developers who want AI assistance deeply integrated into their coding workflow. Unlike plugins for existing editors, Kodik is built from the ground up with AI as a first-class citizen. It supports all major programming languages and comes with a built-in AI agent that can read, write, refactor, and debug your code. Kodik uses large language models under the hood but all processing can be configured to run locally or through the cloud."
+  },
+  {
+    "section": "Installation on Windows",
+    "text": "To install Kodik on Windows, download the installer from kodik.dev/download. Run the .exe and follow the setup wizard. Kodik requires Windows 10 version 1903 or later and at least 8GB of RAM. During installation you can choose between a full install (includes local model support) and a lightweight install (cloud-only mode). After installation, launch Kodik from the Start Menu or desktop shortcut. On first launch you will be prompted to sign in or create an account."
+  },
+  {
+    "section": "Installation on macOS",
+    "text": "Download the .dmg file from kodik.dev/download. Open it and drag Kodik into your Applications folder. Kodik requires macOS 12 Monterey or later. Apple Silicon (M1/M2/M3) is natively supported and significantly faster for local model inference. If macOS blocks the app on first launch, go to System Settings > Privacy & Security and click Open Anyway."
+  },
+  {
+    "section": "Installation on Linux",
+    "text": "Kodik is available as a .deb package for Debian/Ubuntu, an .rpm for Fedora/RHEL, and an AppImage that works on any distribution. Install the .deb with: sudo dpkg -i kodik.deb. Install the .rpm with: sudo rpm -i kodik.rpm. For the AppImage, make it executable with chmod +x kodik.AppImage and run it directly. Ubuntu 22.04+ and Fedora 38+ are officially supported."
+  },
+  {
+    "section": "Signing In and Accounts",
+    "text": "Kodik requires an account for cloud features. You can sign in with Google, GitHub, or email. A free tier is available with up to 100 AI requests per day. The Pro plan ($19/month) gives unlimited AI requests, access to larger models, and cloud sync for settings and projects. The Team plan ($49/month per seat) adds shared knowledge bases, team agents, and priority support. You can manage your account at kodik.dev/account."
+  },
+  {
+    "section": "AI Agent Overview",
+    "text": "The Kodik AI Agent is the core feature of the IDE. It can understand your entire project context, not just the open file. You can talk to the agent in the side panel, ask it to explain code, fix bugs, write tests, or refactor a module. The agent has access to your file system (within the project), your terminal, and your git history. You can configure what context the agent is allowed to see in Settings > Agent > Context Permissions."
+  },
+  {
+    "section": "AI Models and Switching Models",
+    "text": "Kodik supports multiple AI models. By default it uses the Kodik Cloud model optimized for code. You can switch to OpenAI GPT-4o, Anthropic Claude, or a locally running Ollama model from the model selector in the bottom status bar. To use a custom API key, go to Settings > AI > API Keys and enter your key. Local models require the full installation and at least 16GB of RAM for 7B parameter models."
+  },
+  {
+    "section": "Keybindings and Shortcuts",
+    "text": "The default keybindings follow VS Code conventions to ease the transition. Open the command palette with Ctrl+Shift+P (Cmd+Shift+P on Mac). Open the AI agent panel with Ctrl+Shift+A. Inline AI suggestions appear as you type and can be accepted with Tab or dismissed with Escape. You can view and customize all keybindings in Settings > Keybindings. A printable cheat sheet is available at kodik.dev/shortcuts."
+  },
+  {
+    "section": "Extensions and Plugins",
+    "text": "Kodik has its own extension marketplace at kodik.dev/extensions. VS Code extensions are partially compatible — extensions that are purely language support or themes typically work. Extensions that rely on VS Code-specific APIs may not. To install an extension, open the Extensions panel with Ctrl+Shift+X, search for it, and click Install. You can also install extensions from a .kodikext file by dragging it into the window."
+  },
+  {
+    "section": "Project Setup and Opening Files",
+    "text": "Open a project by selecting File > Open Folder or using Ctrl+K then Ctrl+O. Kodik will automatically index your project on first open — this powers AI context awareness. Indexing time depends on project size. For large monorepos you can limit the indexed scope in Settings > Project > Index Scope. Kodik supports workspace files (.kodik-workspace) for multi-root projects."
+  },
+  {
+    "section": "Terminal Integration",
+    "text": "Kodik has a built-in terminal accessible via Ctrl+` (backtick). The AI agent can read terminal output and suggest fixes when commands fail. You can run multiple terminal sessions simultaneously using the + button in the terminal tab bar. The terminal uses your system shell by default (PowerShell on Windows, zsh or bash on Mac/Linux). You can change the default shell in Settings > Terminal > Default Shell."
+  },
+  {
+    "section": "Git and Version Control",
+    "text": "Kodik has built-in Git support. The Source Control panel (Ctrl+Shift+G) shows changed files, staged changes, and lets you commit directly. The AI agent can generate commit messages based on your diff — click the sparkle icon next to the commit message input. Kodik also shows inline blame annotations and a visual diff editor. GitHub, GitLab, and Bitbucket authentication is supported via Settings > Source Control > Accounts."
+  },
+  {
+    "section": "Debugging",
+    "text": "Kodik includes a full debugger supporting Node.js, Python, Go, Java, C/C++, and Rust out of the box. Start a debug session with F5. Set breakpoints by clicking in the gutter. When a breakpoint hits, the AI agent is automatically given the current stack and variable state so you can ask it questions like why is this variable null here. Remote debugging over SSH is supported in the Pro and Team plans."
+  },
+  {
+    "section": "Settings and Configuration",
+    "text": "Open Settings with Ctrl+, (Cmd+, on Mac). Settings are stored as a settings.json file in the Kodik config directory: ~/.kodik on Mac and Linux, or %APPDATA%\\Kodik on Windows. You can edit the JSON directly or use the visual settings UI. Settings sync across devices if you are signed in to a Pro or Team account. Workspace-level settings in .kodik/settings.json override user settings."
+  },
+  {
+    "section": "Troubleshooting Kodik Won't Start",
+    "text": "If Kodik fails to start, check the logs at ~/.kodik/logs/main.log or %APPDATA%\\Kodik\\logs\\main.log on Windows. Common causes: corrupted config file (delete settings.json and relaunch), GPU driver conflict (start with --disable-gpu flag), or a port conflict (Kodik uses port 6173 internally by default, changeable with --port). If none of these help, try reinstalling Kodik after uninstalling cleanly."
+  },
+  {
+    "section": "Troubleshooting AI Agent Not Responding",
+    "text": "If the AI agent stops responding, check your internet connection if using cloud models. Verify your API key is valid in Settings > AI > API Keys. If using a local model, ensure Ollama is running by typing ollama serve in a terminal. You can reset the agent session by clicking the trash icon in the AI panel — this clears the conversation but does not affect your code. Check kodik.dev/status for any ongoing outages."
+  },
+  {
+    "section": "Troubleshooting Slow Performance",
+    "text": "Kodik can be slow on large projects due to indexing. You can disable background indexing in Settings > Project > Index on Save only. If the UI feels sluggish, try disabling hardware acceleration via Settings > Appearance > Hardware Acceleration. Reducing the AI context window in Settings > Agent > Max Context Tokens can also help with response latency. On low-RAM machines, switching to a smaller local model or cloud mode is recommended."
+  },
+  {
+    "section": "Privacy and Data",
+    "text": "When using cloud models, your code and prompts are sent to Kodik servers and then to the underlying model provider. We do not store your code beyond the duration of the request. You can audit all data sent by enabling Settings > Privacy > Request Logging. If your project contains sensitive data, use local model mode — in this mode nothing leaves your machine. Kodik is SOC 2 Type II compliant. See kodik.dev/privacy for the full privacy policy."
+  },
+  {
+    "section": "Licensing and Activation",
+    "text": "Kodik is licensed per user. After purchasing a plan, your license is tied to your account with no separate license keys needed. You can be logged in on up to 3 devices simultaneously. For Team plans, licenses are managed by the team admin at kodik.dev/team. If you need to transfer a license to a different email, contact support. Educational licenses are available at 50% off for students and teachers with a valid .edu email."
+  }
+]

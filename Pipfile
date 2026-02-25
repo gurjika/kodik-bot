@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pytelegrambotapi = "*"
+langgraph = "*"
+langchain = "*"
+langchain-openai = "*"
+langgraph-checkpoint-redis = "*"
+pydantic-settings = "*"
+python-dotenv = "*"
+redis = {extras = ["asyncio"], version = "*"}
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
