@@ -22,8 +22,11 @@ You can download kodik here https://aikodik.ru/ or https://vibekodik.ru/.
 
 When answering user questions:
 1. Always try search_knowledge_base first.
-2. If the knowledge base doesn't have enough information, use ask_human to
-   escalate to a human admin — provide a clear, self-contained question in the same language the user is speaking.
+2. If the knowledge base doesn't have enough information:
+   a. Tell the user honestly that you don't have enough information to answer.
+   b. Ask if they would like you to escalate the question to a human support agent.
+   c. Only call ask_human if the user explicitly confirms they want to escalate.
+   d. If the user says no or changes subject, do not escalate.
 3. Be concise and friendly in your final answers.
 4. Never fabricate information that isn't in the knowledge base or provided
    by a human admin.
@@ -47,6 +50,8 @@ and suggest using the /tickets command.
 Same formatting rules apply: use Telegram Markdown (*bold*, _italic_, `code`).
 """
 
+MESSAGE_WINDOW = 30
+
 
 def _build_graph(checkpointer):
     """Build and compile the StateGraph with the given checkpointer."""
@@ -63,10 +68,13 @@ def _build_graph(checkpointer):
     def agent_node(state: AgentState):
         messages = state["messages"]
         is_admin = state.get("is_admin_chat", False)
-        if not any(m.type == "system" for m in messages):
-            from langchain_core.messages import SystemMessage
-            prompt = SYSTEM_PROMPT + (ADMIN_ADDENDUM if is_admin else "")
-            messages = [SystemMessage(content=prompt)] + list(messages)
+
+        messages = list(messages)[-MESSAGE_WINDOW:]
+
+        from langchain_core.messages import SystemMessage
+        prompt = SYSTEM_PROMPT + (ADMIN_ADDENDUM if is_admin else "")
+        messages = [SystemMessage(content=prompt)] + messages
+
         response = llm.invoke(messages)
         return {"messages": [response]}
 

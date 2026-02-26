@@ -23,8 +23,9 @@ def search_knowledge_base(query: str) -> str:
 @tool
 async def ask_human(question: str, config: RunnableConfig) -> str:
     """
-    Escalate a question to a human admin when the knowledge base does not
-    contain sufficient information and you cannot confidently answer.
+    Escalate a question to a human admin.
+    Only call this tool AFTER the user has explicitly confirmed they want to escalate.
+    Never call this automatically — always ask the user first.
     Provide a clear, self-contained question for the admin,
     written in the same language the user is speaking.
     The user will be notified that their question has been escalated.
@@ -41,8 +42,6 @@ async def ask_human(question: str, config: RunnableConfig) -> str:
 
     text = (
         f"🔔 *ТРЕБУЕТСЯ ОТВЕТ АДМИНИСТРАТОРА* 🔔"
-        f"\n━━━━━━━━━━━━━━━━━━━━"
-        f"\n*Тред:* `{thread_id}`"
         f"\n━━━━━━━━━━━━━━━━━━━━"
         f"\n*💬 Вопрос от агента:*"
         f"\n{question}"
