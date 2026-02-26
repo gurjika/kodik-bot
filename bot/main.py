@@ -1,23 +1,12 @@
-"""
-Entry point.
-
-Starts:
-  - Telegram bot polling (non-blocking async)
-  - NUM_WORKERS async worker coroutines draining the Redis job queue
-
-All coroutines share one event loop — no threading, no multiprocessing.
-To scale beyond one event loop, run multiple instances of this process
-(they all share the same Redis queue and LangGraph Redis checkpointer).
-"""
-
 import asyncio
 import logging
 import sys
-from colorama import init as colorama_init, Fore, Style
+from colorama import Fore, Style, init as colorama_init
 from config import get_settings
 from agent.graph import create_graph
 from bot.handlers import register_user_handlers
 from bot.admin import register_admin_handlers
+from bot.group import register_group_handlers
 from bot.instance import bot
 from workers.worker import WorkerPool
 from storage.database import init_db
@@ -25,7 +14,6 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-colorama_init(autoreset=True)
 
 _LEVEL_COLORS = {
     "DEBUG":    Fore.CYAN,
@@ -37,6 +25,8 @@ _LEVEL_COLORS = {
 
 
 class _ColorFormatter(logging.Formatter):
+    _FMT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+
     def format(self, record: logging.LogRecord) -> str:
         color = _LEVEL_COLORS.get(record.levelname, "")
         record.levelname = f"{color}{record.levelname}{Style.RESET_ALL}"
@@ -45,10 +35,9 @@ class _ColorFormatter(logging.Formatter):
 
 
 def _configure_logging(level: str) -> None:
+    colorama_init(autoreset=True)
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(
-        _ColorFormatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-    )
+    handler.setFormatter(_ColorFormatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
     logging.basicConfig(
         level=getattr(logging, level.upper(), logging.INFO),
         handlers=[handler],
@@ -69,8 +58,12 @@ async def main() -> None:
     graph = await create_graph()
     logger.info("LangGraph agent ready")
 
-    register_user_handlers(bot)
-    register_admin_handlers(bot)
+    me = await bot.get_me()
+    register_user_handlers(bot, bot_username=me.username)
+    register_admin_handlers(bot, bot_username=me.username)
+
+    register_group_handlers(bot, bot_username=me.username)
+    logger.info("Group monitor active (@%s)", me.username)
 
     pool = WorkerPool(graph=graph, num_workers=settings.NUM_WORKERS)
     pool.start()

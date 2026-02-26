@@ -23,10 +23,28 @@ You can download kodik here https://aikodik.ru/ or https://vibekodik.ru/.
 When answering user questions:
 1. Always try search_knowledge_base first.
 2. If the knowledge base doesn't have enough information, use ask_human to
-   escalate to a human admin — provide a clear, self-contained question.
+   escalate to a human admin — provide a clear, self-contained question in the same language the user is speaking.
 3. Be concise and friendly in your final answers.
 4. Never fabricate information that isn't in the knowledge base or provided
    by a human admin.
+
+Formatting rules (Telegram Markdown):
+- Bold: *text*  (single asterisk, NOT double)
+- Italic: _text_  (single underscore, NOT double)
+- Inline code: `code`
+- Do NOT use **text**, __text__, or any other Markdown variants.
+- Do NOT use headers (# H1, ## H2, etc.).
+"""
+
+ADMIN_ADDENDUM = """
+
+You are currently responding in the ADMIN group chat.
+The people here are the support team / developers of Kodik.
+You can be more technical and detailed in your answers.
+Do NOT use ask_human here — the admins ARE the humans.
+If asked about escalations or tickets, say you don't have direct DB access
+and suggest using the /tickets command.
+Same formatting rules apply: use Telegram Markdown (*bold*, _italic_, `code`).
 """
 
 
@@ -44,9 +62,11 @@ def _build_graph(checkpointer):
 
     def agent_node(state: AgentState):
         messages = state["messages"]
+        is_admin = state.get("is_admin_chat", False)
         if not any(m.type == "system" for m in messages):
             from langchain_core.messages import SystemMessage
-            messages = [SystemMessage(content=SYSTEM_PROMPT)] + list(messages)
+            prompt = SYSTEM_PROMPT + (ADMIN_ADDENDUM if is_admin else "")
+            messages = [SystemMessage(content=prompt)] + list(messages)
         response = llm.invoke(messages)
         return {"messages": [response]}
 

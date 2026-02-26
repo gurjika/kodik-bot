@@ -6,3 +6,4 @@ class AgentState(MessagesState):
     user_chat_id: int
     user_id: int
     thread_id: str
+    is_admin_chat: bool

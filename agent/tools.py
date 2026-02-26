@@ -25,7 +25,8 @@ async def ask_human(question: str, config: RunnableConfig) -> str:
     """
     Escalate a question to a human admin when the knowledge base does not
     contain sufficient information and you cannot confidently answer.
-    Provide a clear, self-contained question for the admin.
+    Provide a clear, self-contained question for the admin,
+    written in the same language the user is speaking.
     The user will be notified that their question has been escalated.
     """
     from storage.redis_store import set_admin_pending
@@ -36,12 +37,17 @@ async def ask_human(question: str, config: RunnableConfig) -> str:
     configurable = config.get("configurable", {})
     thread_id: str = configurable["thread_id"]
     user_chat_id: int = configurable["user_chat_id"]
+    user_id: int = configurable.get("user_id", 0)
 
     text = (
-        f"🔔 *Admin input needed*\n\n"
-        f"*Thread:* `{thread_id}`\n\n"
-        f"*Question from agent:*\n{question}\n\n"
-        f"_Reply to this message to send your answer directly to the user._"
+        f"🔔 *ТРЕБУЕТСЯ ОТВЕТ АДМИНИСТРАТОРА* 🔔"
+        f"\n━━━━━━━━━━━━━━━━━━━━"
+        f"\n*Тред:* `{thread_id}`"
+        f"\n━━━━━━━━━━━━━━━━━━━━"
+        f"\n*💬 Вопрос от агента:*"
+        f"\n{question}"
+        f"\n━━━━━━━━━━━━━━━━━━━━"
+        f"\n_Ответьте на это сообщение, чтобы отправить ответ пользователю._"
     )
     sent = await bot.send_message(
         settings.ADMIN_GROUP_ID,
@@ -52,6 +58,7 @@ async def ask_human(question: str, config: RunnableConfig) -> str:
         admin_msg_id=sent.message_id,
         thread_id=thread_id,
         user_chat_id=user_chat_id,
+        user_id=user_id,
         escalation_question=question,
     )
 
@@ -72,6 +79,6 @@ async def ask_human(question: str, config: RunnableConfig) -> str:
         thread_id,
     )
     return (
-        "The question has been escalated to our support team. "
-        "They will reply to the user directly and shortly."
+        "Ваш вопрос передан команде поддержки. "
+        "Они ответят вам напрямов в ближайшее время."
     )
