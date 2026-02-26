@@ -74,7 +74,7 @@ async def _analyze_batch(messages: list[dict]) -> list[int]:
 _REPLY_SYSTEM = (
     "You are the support bot for Kodik — an AI code editor. "
     "A user posted a bug report in a group chat. Write a short, friendly reply (2-4 sentences) "
-    "in the SAME language the user wrote in. "
+    "in Russian regardless of the language the user wrote in. "
     "Briefly acknowledge the specific issue they described, "
     "then invite them to message you directly for more help. "
     "Mention that they can write to @{bot_username}. Do NOT use markdown formatting."

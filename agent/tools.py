@@ -26,8 +26,7 @@ async def ask_human(question: str, config: RunnableConfig) -> str:
     Escalate a question to a human admin.
     Only call this tool AFTER the user has explicitly confirmed they want to escalate.
     Never call this automatically — always ask the user first.
-    Provide a clear, self-contained question for the admin,
-    written in the same language the user is speaking.
+    Provide a clear, self-contained question for the admin, written in Russian.
     The user will be notified that their question has been escalated.
     """
     from storage.redis_store import set_admin_pending

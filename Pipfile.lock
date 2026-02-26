@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "25d2fce4d91defd941cbc5cbaa2d37dedcb49e099ea54cb76a14bae4a156a329"
+            "sha256": "59f7b2386f21c43a4e7104c0bc277e9f880dbc3d514470967ace4fba4cc03deb"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -436,6 +436,15 @@
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6'",
             "version": "==0.4.6"
         },
+        "colorlog": {
+            "hashes": [
+                "sha256:2d7e8348291948af66122cff006c9f8da6255d224e7cf8e37d8de2df3bad8c9c",
+                "sha256:eb4ae5cb65fe7fec7773c2306061a8e63e02efc2c72eba9d27b0fa23c94f1321"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.6'",
+            "version": "==6.10.1"
+        },
         "cryptography": {
             "hashes": [
                 "sha256:02f547fce831f5096c9a567fd41bc12ca8f11df260959ecc7c3202555cc47a72",
@@ -868,11 +877,11 @@
         },
         "langchain-core": {
             "hashes": [
-                "sha256:7d5f5d2daa8ddbe4054a96101dc5d509926f831b9914808c24640987d499758c",
-                "sha256:8d920d8a31d8c223966a3993d8c79fd6093b9665f2222fc878812f3a52072ab7"
+                "sha256:055a4bfe7d62f4ac45ed49fd759ee2e6bdd15abf998fbeea695fda5da2de6413",
+                "sha256:2768add9aa97232a7712580f678e0ba045ee1036c71fe471355be0434fcb6e30"
             ],
             "markers": "python_full_version >= '3.10.0' and python_full_version < '4.0.0'",
-            "version": "==1.2.15"
+            "version": "==1.2.16"
         },
         "langchain-openai": {
             "hashes": [
@@ -927,11 +936,11 @@
         },
         "langsmith": {
             "hashes": [
-                "sha256:28d256584969db723b68189a7dbb065836572728ab4d9597ec5379fe0a1e1641",
-                "sha256:e8646f8429d3c1641c7bae3c01bfdc3dfa27625994b0ef4303714d6b06fe1ef9"
+                "sha256:2294d3c4a5a8205ef38880c1c412d85322e6055858ae999ef6641c815995d437",
+                "sha256:ef3d0aff77917bf3776368e90f387df5ffd7cb7cff11ece0ec4fd227e433b5de"
             ],
             "markers": "python_version >= '3.10'",
-            "version": "==0.7.6"
+            "version": "==0.7.7"
         },
         "mako": {
             "hashes": [

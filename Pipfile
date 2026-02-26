@@ -19,6 +19,7 @@ cryptography = "*"
 alembic = "*"
 colorama = "*"
 apscheduler = ">=3.10"
+colorlog = "*"
 
 [dev-packages]
 
