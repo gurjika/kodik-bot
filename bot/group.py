@@ -17,7 +17,7 @@ from storage.redis_store import (
 logger = logging.getLogger(__name__)
 
 BATCH_SIZE = 20
-INTERVAL_SECONDS = 120
+INTERVAL_SECONDS = 360
 
 _scheduler = AsyncIOScheduler()
 

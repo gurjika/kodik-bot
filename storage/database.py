@@ -84,7 +84,12 @@ async def init_db() -> None:
     global _engine, _session_factory
 
     settings = get_settings()
-    _engine = create_async_engine(settings.DATABASE_URL, echo=False)
+    _engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=False,
+        pool_pre_ping=True,
+        pool_recycle=300,
+    )
     _session_factory = async_sessionmaker(_engine, expire_on_commit=False)
 
     async with _engine.begin() as conn:
