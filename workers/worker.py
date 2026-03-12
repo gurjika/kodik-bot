@@ -141,7 +141,7 @@ class WorkerPool:
                 break
 
         if final_ai_message:
-            await bot.send_message(chat_id, f"✅ Ответ команды поддержки:\n━━━━━━━━━━━━━━━━━━━━\n{final_ai_message}", parse_mode="Markdown")
+            await bot.send_message(chat_id, f"{final_ai_message}", parse_mode="Markdown")
         else:
             logger.warning("No AI response for admin_reply, thread %s", thread_id)
 

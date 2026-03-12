@@ -39,9 +39,19 @@ async def ask_human(question: str, config: RunnableConfig) -> str:
     user_chat_id: int = configurable["user_chat_id"]
     user_id: int = configurable.get("user_id", 0)
 
+    try:
+        user_chat = await bot.get_chat(user_chat_id)
+        if user_chat.username:
+            username_line = f"\n👤 *Пользователь:* @{user_chat.username}"
+        else:
+            username_line = ""
+    except Exception:
+        username_line = ""
+
     text = (
         f"🔔 *ТРЕБУЕТСЯ ОТВЕТ АДМИНИСТРАТОРА* 🔔"
         f"\n━━━━━━━━━━━━━━━━━━━━"
+        f"{username_line}"
         f"\n*💬 Вопрос от агента:*"
         f"\n{question}"
         f"\n━━━━━━━━━━━━━━━━━━━━"
