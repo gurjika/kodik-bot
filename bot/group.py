@@ -17,7 +17,7 @@ from storage.redis_store import (
 logger = logging.getLogger(__name__)
 
 BATCH_SIZE = 20
-INTERVAL_SECONDS = 360
+INTERVAL_SECONDS = 60
 
 _scheduler = AsyncIOScheduler()
 
@@ -77,7 +77,8 @@ _REPLY_SYSTEM = (
     "in Russian regardless of the language the user wrote in. "
     "Briefly acknowledge the specific issue they described, "
     "then invite them to message you directly for more help. "
-    "Mention that they can write to @{bot_username}. Do NOT use markdown formatting."
+    "Mention that they can write to @{bot_username}. Do NOT use markdown formatting.",
+    "Do not say you are aware of the issue or that you are a bot. Just empathize and invite them to DM you for help."
 )
 
 
@@ -100,6 +101,12 @@ async def _scan_and_reply(
         if not batch:
             continue
 
+        logger.info(
+            "Analyzing batch of %d messages for chat %s:\n%s",
+            len(batch),
+            chat_id,
+            "\n".join(f"  [id={m['message_id']}] {m['text'][:200]}" for m in batch),
+        )
         try:
             bug_ids = await _analyze_batch(batch)
         except Exception:

@@ -32,6 +32,7 @@ async def enqueue_new_message(
     text: str,
     reply_message_id: int | None = None,
     is_admin_chat: bool = False,
+    image_file_ids: list[str] | None = None,
 ) -> None:
     job: dict = {
         "type": "new",
@@ -44,6 +45,8 @@ async def enqueue_new_message(
         job["reply_message_id"] = reply_message_id
     if is_admin_chat:
         job["is_admin_chat"] = True
+    if image_file_ids:
+        job["image_file_ids"] = image_file_ids
     await get_redis().rpush(QUEUE_KEY, json.dumps(job))
     logger.debug("Enqueued new message job for thread %s", thread_id)
 

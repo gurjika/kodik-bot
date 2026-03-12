@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import logging
 from typing import Any
 from langgraph.graph.state import CompiledStateGraph
@@ -51,8 +52,26 @@ class WorkerPool:
         text: str = job["text"]
         config = self._make_config(thread_id, chat_id, user_id=job["user_id"])
 
+        image_file_ids: list[str] = job.get("image_file_ids", [])
+        if image_file_ids:
+            content: list[dict] = [{"type": "text", "text": text}]
+            for file_id in image_file_ids:
+                try:
+                    file_info = await bot.get_file(file_id)
+                    file_data = await bot.download_file(file_info.file_path)
+                    b64 = base64.b64encode(file_data).decode("utf-8")
+                    content.append({
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{b64}"},
+                    })
+                except Exception:
+                    logger.warning("Failed to download image %s", file_id)
+            human_msg = HumanMessage(content=content)
+        else:
+            human_msg = HumanMessage(content=text)
+
         initial_state = {
-            "messages": [HumanMessage(content=text)],
+            "messages": [human_msg],
             "user_chat_id": chat_id,
             "user_id": job["user_id"],
             "thread_id": thread_id,
@@ -73,7 +92,7 @@ class WorkerPool:
                 user_id=job["user_id"],
                 chat_id=chat_id,
                 thread_id=thread_id,
-                user_text=text,
+                user_text=text if not image_file_ids else f"{text} [+{len(image_file_ids)} image(s)]",
                 ai_response=final_ai_message,
             ))
             await session.commit()
